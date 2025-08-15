@@ -1,0 +1,226 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دانلود فیلم</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #f3e7ff, #e0f7ff);
+            color: #333;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .navbar a {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .navbar a:hover {
+            transform: scale(1.1);
+            color: #fff;
+        }
+        .download-form, .movie-info, .download-links {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .download-form select, .download-form button, .download-links button {
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .download-form button:hover, .download-links button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        footer {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="navbar container mx-auto p-4 mt-4 flex justify-center space-x-6 space-x-reverse">
+        <a href="index1.html#home" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-home mr-1"></i> خانه</a>
+        <a href="index1.html#movies" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-film mr-1"></i> فیلم‌ها</a>
+        <a href="index1.html#series" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-tv mr-1"></i> سریال‌ها</a>
+        <a href="index1.html#animation" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-robot mr-1"></i> انیمیشن</a>
+        <a href="index1.html#contact" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-envelope mr-1"></i> تماس با ما</a>
+    </nav>
+
+    <main class="container mx-auto p-4 flex-grow">
+        <section class="download-form p-6 text-center mb-6">
+            <h1 class="text-3xl font-bold text-pink-600 mb-4">دانلود فیلم</h1>
+            <p class="text-lg text-gray-700 mb-4">فیلم مورد نظرتو انتخاب کن و کیفیتش رو مشخص کن! 🎥</p>
+            <select id="movieSelect" class="p-2 border border-pink-300 rounded-lg mb-4 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-pink-400">
+                <option value="">انتخاب فیلم</option>
+                <option value="joker">جوکر</option>
+                <option value="parasite">انگل</option>
+                <option value="lastman">آخرین مرد</option>
+                <option value="avengers">اونجرز</option>
+                <option value="titanic">تایتانیک</option>
+            </select>
+            <select id="qualitySelect" class="p-2 border border-pink-300 rounded-lg mb-4 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-pink-400">
+                <option value="">انتخاب کیفیت</option>
+                <option value="480p">480p</option>
+                <option value="720p">720p</option>
+                <option value="1080p">1080p</option>
+            </select>
+            <button onclick="updateDownloadLinks()" class="bg-pink-500 text-white p-2 rounded-lg hover:bg-pink-600"><i class="fas fa-search mr-1"></i> نمایش لینک‌ها</button>
+        </section>
+
+        <section class="movie-info p-6 mb-6 hidden" id="movieInfo">
+            <div class="flex flex-col md:flex-row items-center">
+                <img id="moviePoster" src="https://via.placeholder.com/200x300" alt="پوستر فیلم" class="w-48 h-72 object-cover rounded-lg mb-4 md:mb-0 md:mr-6">
+                <div>
+                    <h2 id="movieTitle" class="text-2xl font-bold text-pink-600 mb-2"></h2>
+                    <p id="movieDescription" class="text-gray-600"></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="download-links p-6 hidden" id="downloadLinks">
+            <h2 class="text-2xl font-bold text-pink-600 mb-4 text-center">لینک‌های دانلود</h2>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 sm:space-x-reverse">
+                <button onclick="downloadMovie('480p')" class="bg-blue-400 text-white p-2 rounded-lg hover:bg-blue-500"><i class="fas fa-download mr-1"></i> دانلود 480p</button>
+                <button onclick="downloadMovie('720p')" class="bg-blue-400 text-white p-2 rounded-lg hover:bg-blue-500"><i class="fas fa-download mr-1"></i> دانلود 720p</button>
+                <button onclick="downloadMovie('1080p')" class="bg-blue-400 text-white p-2 rounded-lg hover:bg-blue-500"><i class="fas fa-download mr-1"></i> دانلود 1080p</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container mx-auto p-4 text-center text-gray-700">
+        <p>2025 فیلم‌باز. همه حقوق محفوظ است. 💖</p>
+    </footer>
+
+    <script>
+        const movies = {
+            'joker': {
+                title: 'جوکر',
+                description: 'فیلمی روانشناسی درباره مردی که به تدریج به یک جنایتکار بدل می‌شود.',
+                poster: 'https://via.placeholder.com/200x300?text=جوکر'
+            },
+            'parasite': {
+                title: 'انگل',
+                description: 'برنده اسکار بهترین فیلم، داستانی درباره تفاوت‌های طبقاتی.',
+                poster: 'https://via.placeholder.com/200x300?text=انگل'
+            },
+            'lastman': {
+                title: 'آخرین مرد',
+                description: 'داستانی پساآخرالزمانی درباره بقا و امید.',
+                poster: 'https://via.placeholder.com/200x300?text=آخرین+مرد'
+            },
+            'avengers': {
+                title: 'اونجرز',
+                description: 'فیلمی ابرقهرمانی درباره نبرد ابرقهرمانان برای نجات جهان.',
+                poster: 'https://via.placeholder.com/200x300?text=اونجرز'
+            },
+            'titanic': {
+                title: 'تایتانیک',
+                description: 'داستان عاشقانه کلاسیک در کشتی تایتانیک.',
+                poster: 'https://via.placeholder.com/200x300?text=تایتانیک'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedMovie = urlParams.get('movie');
+            const movieSelect = document.getElementById('movieSelect');
+            const movieInfo = document.getElementById('movieInfo');
+            const movieTitle = document.getElementById('movieTitle');
+            const movieDescription = document.getElementById('movieDescription');
+            const moviePoster = document.getElementById('moviePoster');
+            const downloadLinks = document.getElementById('downloadLinks');
+
+            if (selectedMovie && movies[selectedMovie]) {
+                movieSelect.value = selectedMovie;
+                movieInfo.classList.remove('hidden');
+                movieTitle.textContent = movies[selectedMovie].title;
+                movieDescription.textContent = movies[selectedMovie].description;
+                moviePoster.src = movies[selectedMovie].poster;
+                downloadLinks.classList.remove('hidden');
+            }
+        });
+
+        function updateDownloadLinks() {
+            const movie = document.getElementById('movieSelect').value;
+            const movieInfo = document.getElementById('movieInfo');
+            const movieTitle = document.getElementById('movieTitle');
+            const movieDescription = document.getElementById('movieDescription');
+            const moviePoster = document.getElementById('moviePoster');
+            const downloadLinks = document.getElementById('downloadLinks');
+
+            if (movie && movies[movie]) {
+                movieInfo.classList.remove('hidden');
+                movieTitle.textContent = movies[movie].title;
+                movieDescription.textContent = movies[movie].description;
+                moviePoster.src = movies[movie].poster;
+                downloadLinks.classList.remove('hidden');
+            } else {
+                movieInfo.classList.add('hidden');
+                downloadLinks.classList.add('hidden');
+                alert('لطفاً یک فیلم انتخاب کنید! 🎬');
+            }
+        }
+
+        function downloadMovie(quality) {
+            const movie = document.getElementById('movieSelect').value;
+            if (!movie) {
+                alert('لطفاً فیلم را انتخاب کنید! 🎬');
+                return;
+            }
+            alert(`دانلود ${movies[movie].title} با کیفیت ${quality} شروع شد! 🎥`);
+            // برای دانلود واقعی، اینجا باید به سرور درخواست ارسال شود
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دانلود فیلم و سریال حرفه‌ای</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #f3e7ff, #e0f7ff);
+            color: #333;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .navbar a {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .navbar a:hover {
+            transform: scale(1.1);
+            color: #fff;
+        }
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card img {
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover img {
+            transform: scale(1.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-title {
+            background: linear-gradient(135deg, #ff6f91, #ffccbc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        footer {
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="navbar container mx-auto p-4 mt-4 flex justify-center space-x-6 space-x-reverse">
+        <a href="#home" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-home mr-1"></i> خانه</a>
+        <a href="#movies" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-film mr-1"></i> فیلم‌ها</a>
+        <a href="#series" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-tv mr-1"></i> سریال‌ها</a>
+        <a href="#animation" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-robot mr-1"></i> انیمیشن</a>
+        <a href="#contact" class="text-lg font-bold text-pink-800 hover:text-white"><i class="fas fa-envelope mr-1"></i> تماس با ما</a>
+    </nav>
+
+    <main class="container mx-auto p-4 flex-grow">
+        <section id="home" class="mb-12 text-center">
+            <h1 class="text-4xl font-bold section-title mb-4">خوش اومدید به دنیای فیلم‌باز!</h1>
+            <p class="text-lg text-gray-700">به زودی کلی محتوای جذاب و کیوت برای شما آماده می‌کنیم! 🎬✨</p>
+        </section>
+
+        <section id="movies" class="mb-12">
+            <h2 class="text-3xl font-bold section-title mb-6 text-center">جدیدترین فیلم‌ها</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <a href="download.html?movie=joker" class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=جوکر" alt="جوکر" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">جوکر</h3>
+                    <p class="text-gray-600">فیلمی روانشناسی درباره مردی که به تدریج به یک جنایتکار بدل می‌شود.</p>
+                </a>
+                <a href="download.html?movie=parasite" class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=انگل" alt="انگل" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">انگل</h3>
+                    <p class="text-gray-600">برنده اسکار بهترین فیلم، داستانی درباره تفاوت‌های طبقاتی.</p>
+                </a>
+                <a href="download.html?movie=lastman" class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=آخرین+مرد" alt="آخرین مرد" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">آخرین مرد</h3>
+                    <p class="text-gray-600">داستانی پساآخرالزمانی درباره بقا و امید.</p>
+                </a>
+                <a href="download.html?movie=avengers" class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=اونجرز" alt="اونجرز" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">اونجرز</h3>
+                    <p class="text-gray-600">فیلمی ابرقهرمانی درباره نبرد ابرقهرمانان برای نجات جهان.</p>
+                </a>
+                <a href="download.html?movie=titanic" class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=تایتانیک" alt="تایتانیک" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">تایتانیک</h3>
+                    <p class="text-gray-600">داستان عاشقانه کلاسیک در کشتی تایتانیک.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="series" class="mb-12">
+            <h2 class="text-3xl font-bold section-title mb-6 text-center">سریال‌ها</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=Wednesday" alt="Wednesday" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">سریال Wednesday</h3>
+                    <p class="text-gray-600">این سریال سال‌های دانشجویی ونزدی آدامز را دنبال می‌کند، زمانی که او...</p>
+                </div>
+                <div class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=Stranger+Things" alt="Stranger Things" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">چیزهای عجیب</h3>
+                    <p class="text-gray-600">داستانی تخیلی و ترسناک درباره گروهی از دوستان در دهه 80.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="animation" class="mb-12">
+            <h2 class="text-3xl font-bold section-title mb-6 text-center">انیمیشن</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=Inside+Out" alt="Inside Out" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">درون و بیرون</h3>
+                    <p class="text-gray-600">انیمیشنی درباره احساسات یک دختر جوان و ماجراهای ذهن او.</p>
+                </div>
+                <div class="card p-4">
+                    <img src="https://via.placeholder.com/200x300?text=Frozen" alt="Frozen" class="w-full h-48 object-cover mb-2">
+                    <h3 class="text-xl font-bold text-pink-600">یخ‌زده</h3>
+                    <p class="text-gray-600">داستان دو خواهر و ماجراجویی در سرزمینی یخی.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="mb-12 text-center">
+            <h2 class="text-3xl font-bold section-title mb-6">اشنایی با ما</h2>
+            <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-lg">
+                <form>
+                    <input type="text" placeholder="نام شما" class="w-full p-2 mb-4 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400">
+                    <input type="email" placeholder="ایمیل شما" class="w-full p-2 mb-4 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400">
+                    <textarea placeholder="پیام شما" class="w-full p-2 mb-4 border border-pink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"></textarea>
+                    <button type="button" onclick="alert('پیام شما ارسال شد! 📧')" class="bg-pink-500 text-white p-2 rounded-lg hover:bg-pink-600"><i class="fas fa-paper-plane mr-1"></i> ارسال</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container mx-auto p-4 text-center text-gray-700">
+        <p>2025 فیلم‌باز. همه حقوق محفوظ است. 💖</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>
